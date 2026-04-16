@@ -33,7 +33,10 @@
         "api-reference/film-planning",
         "api-reference/character",
         "api-reference/storyboard",
-        "api-reference/film-screenplay"
+        "api-reference/film-screenplay",
+        "api-reference/characters",
+        "api-reference/scenes",
+        "api-reference/props"
       ]
     }
   ],

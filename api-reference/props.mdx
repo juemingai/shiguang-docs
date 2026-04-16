@@ -1,0 +1,141 @@
+---
+title: 道具视觉设计
+description: POST /api/agent/props
+---
+
+从策划/剧本文本中识别关键道具（被持有、具有剧情意义或独立造型价值的物品），生成单体道具图提示词。若剧本中无符合标准的关键道具，返回空数组。
+
+支持多轮修改。
+
+---
+
+## 请求
+
+**`POST /api/agent/props`**
+
+### 请求体
+
+<ParamField body="planning" type="string" required>
+  剧本正文或策划文本，包含道具、角色行为、情节等信息。
+</ParamField>
+
+<ParamField body="film_style" type="string" default="写实风格">
+  画风提示词，追加在每个道具生图词开头。
+</ParamField>
+
+<ParamField body="lang" type="string" default="zh">
+  输出语言：`zh`（中文）或 `en`（英文）
+</ParamField>
+
+<ParamField body="feedback" type="string">
+  修改意见，多轮修改时传入。
+</ParamField>
+
+<ParamField body="previous_response_id" type="string">
+  多轮修改时传入上一次 `done` 事件中的 `response_id`。首次生成不传此字段。
+</ParamField>
+
+### 示例请求
+
+<CodeGroup>
+
+```bash 首次生成
+curl -X POST http://localhost:8000/api/agent/props \
+  -H "Content-Type: application/json" \
+  -N \
+  -d '{
+    "planning": "女主随身携带一块传家玉佩「灵玉」，温润泛光，暗藏前世记忆。王爷腰间悬挂一柄青锋剑...",
+    "film_style": "写实风格"
+  }'
+```
+
+```bash 多轮修改
+curl -X POST http://localhost:8000/api/agent/props \
+  -H "Content-Type: application/json" \
+  -N \
+  -d '{
+    "planning": "...",
+    "film_style": "写实风格",
+    "feedback": "灵玉颜色改为紫色，增加裂纹细节",
+    "previous_response_id": "resp_0217cccc"
+  }'
+```
+
+```python Python
+import httpx
+
+with httpx.stream("POST", "http://localhost:8000/api/agent/props", json={
+    "planning": "...",
+    "film_style": "写实风格",
+}) as r:
+    for line in r.iter_lines():
+        if line.startswith("data: "):
+            print(line[6:])
+```
+
+</CodeGroup>
+
+---
+
+## 响应
+
+**`200 OK`** — SSE 流式响应（`text/event-stream`）
+
+### chunk 事件
+
+```
+data: {"chunk": "[{\"propId\": 1..."}
+
+data: {"chunk": ", \"propName\": \"灵玉\"..."}
+```
+
+### done 事件
+
+```json
+data: {
+  "done": true,
+  "response_id": "resp_0217cccc",
+  "prop_designs": [
+    {
+      "propId": 1,
+      "propName": "灵玉",
+      "propDescription": "女主随身携带的传家玉佩，温润泛光，暗藏前世记忆",
+      "propPrompt": "写实风格，单体道具完整全景图，主体居中，三七分侧视角，正面摆放，无其他物体，纯白背景，修仙世界观玉质法宝，椭圆形玉牌，温润白玉材质，半透明淡绿色调，表面浮雕云纹，边缘描金，散发柔和灵光，清雅神秘"
+    },
+    {
+      "propId": 2,
+      "propName": "青锋剑",
+      "propDescription": "王爷随身佩剑，剑身寒光凛冽，剑格刻有古纹",
+      "propPrompt": "写实风格，单体道具完整全景图，主体居中，三七分侧视角，正面摆放，无其他物体，纯白背景，古代武侠世界观长剑，剑身修长笔直，青钢材质，冷银色调，剑格铸有古篆纹饰，剑柄缠黑色皮革，寒光内敛，肃杀凌厉"
+    }
+  ]
+}
+```
+
+### 响应字段结构
+
+<ResponseField name="prop_designs" type="object[]">
+  道具视觉设计列表。若剧本中无关键道具，返回空数组 `[]`
+
+  <Expandable title="道具字段">
+    <ResponseField name="propId" type="integer">道具序号</ResponseField>
+    <ResponseField name="propName" type="string">道具名称</ResponseField>
+    <ResponseField name="propDescription" type="string">道具简要说明（作用、来源等）</ResponseField>
+    <ResponseField name="propPrompt" type="string">
+      道具生图词。固定结构：`{film_style}，单体道具完整全景图，主体居中，三七分侧视角，正面摆放，无其他物体，纯白背景，...`
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+---
+
+## 道具识别标准
+
+Agent 会识别满足以下任一条件的物品：
+
+| 识别为道具 ✅ | 忽略 ❌ |
+|-------------|--------|
+| 被人物持有/佩戴/递交 | 普通无特征日用品 |
+| 具有剧情关键意义 | 场景固定设施（石柱、祭坛等） |
+| 武器/法宝/玉牌/饰品 | 建筑或大型装置 |
+| 有独立造型价值 | 抽象概念 |
