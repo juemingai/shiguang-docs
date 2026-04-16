@@ -1,0 +1,36 @@
+---
+title: 简介
+description: 拾光 API 接口文档
+---
+
+## 什么是拾光？
+
+**拾光**是一款面向个人创作者的本地 AI 内容创作工具，专注于 AI 漫剧与 AI 短剧的内容生产。采用「本地优先」架构，完全无云端依赖，用户数据本地掌控。
+
+## Agent 接口
+
+拾光提供一套独立的 Agent HTTP 接口，覆盖从创意到分镜的完整内容生产链路：
+
+<CardGroup cols={2}>
+  <Card title="策划编剧（短剧）" icon="clapperboard" href="/api-reference/planning">
+    根据故事创意生成完整的短剧策划方案，包含题材标签、故事大纲、人物小传、分集梗概
+  </Card>
+  <Card title="影视策划（短片）" icon="film" href="/api-reference/film-planning">
+    为 3-5 分钟短片生成结构化策划，包含三幕结构、视觉风格、人物弧光
+  </Card>
+  <Card title="角色 / 场景设计" icon="palette" href="/api-reference/character">
+    为每个角色和关键场景生成视觉设计描述及 AI 图片生成提示词（中英文）
+  </Card>
+  <Card title="分镜脚本" icon="images" href="/api-reference/storyboard">
+    将剧本策划拆解为逐帧分镜脚本，含景别、画面描述、对白、AI 提示词
+  </Card>
+  <Card title="剧本正文（短片）" icon="scroll" href="/api-reference/film-screenplay">
+    根据影视策划生成完整的短片剧本正文（Markdown 格式）
+  </Card>
+</CardGroup>
+
+## 统一 SSE 协议
+
+所有 Agent 接口均使用 **SSE 流式输出**（`text/event-stream`），不会阻塞等待完整结果，适合实时展示生成过程。
+
+详见 [接口概览](/api-reference/overview)。

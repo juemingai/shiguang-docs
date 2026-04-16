@@ -1,0 +1,146 @@
+---
+title: 影视策划（短片）
+description: POST /api/agent/film-planning
+---
+
+根据故事创意，生成 3-5 分钟短片电影的结构化策划方案，包含三幕结构、视觉风格、人物弧光设计。
+
+支持多轮修改。
+
+---
+
+## 请求
+
+**`POST /api/agent/film-planning`**
+
+### 请求体
+
+<ParamField body="user_input" type="string" required>
+  故事创意描述，一句话即可。
+
+  示例：`"一个老人在火车上等待多年未归孩子的故事"`
+</ParamField>
+
+<ParamField body="feedback" type="string">
+  补充说明或修改意见。
+</ParamField>
+
+<ParamField body="previous_response_id" type="string">
+  多轮修改时传入上一次 `done` 事件中的 `response_id`。首次生成不传此字段。
+</ParamField>
+
+### 示例请求
+
+<CodeGroup>
+
+```bash 首次生成
+curl -X POST http://localhost:8000/api/agent/film-planning \
+  -H "Content-Type: application/json" \
+  -N \
+  -d '{
+    "user_input": "一个老人在火车上等待多年未归孩子的故事"
+  }'
+```
+
+```bash 多轮修改
+curl -X POST http://localhost:8000/api/agent/film-planning \
+  -H "Content-Type: application/json" \
+  -N \
+  -d '{
+    "user_input": "一个老人在火车上等待多年未归孩子的故事",
+    "feedback": "结局改为开放式，父女没有直接相遇",
+    "previous_response_id": "resp_0217yyyy"
+  }'
+```
+
+```python Python
+import httpx
+
+with httpx.stream("POST", "http://localhost:8000/api/agent/film-planning", json={
+    "user_input": "一个老人在火车上等待多年未归孩子的故事",
+}) as r:
+    for line in r.iter_lines():
+        if line.startswith("data: "):
+            print(line[6:])
+```
+
+</CodeGroup>
+
+---
+
+## 响应
+
+**`200 OK`** — SSE 流式响应（`text/event-stream`）
+
+### chunk 事件
+
+```
+data: {"chunk": "{\"title\": \"最后一班列车\"..."}
+
+data: {"chunk": ", \"logline\": \"..."}
+```
+
+### done 事件
+
+```json
+data: {
+  "done": true,
+  "response_id": "resp_0217yyyy",
+  "planning": {
+    "title": "最后一班列车",
+    "logline": "一位父亲在女儿出走十年后，踏上同一班列车寻找和解",
+    "theme": "亲情与遗憾",
+    "three_act": {
+      "act1": "父亲独自踏上列车，车厢里的旧物勾起回忆",
+      "act2": "回忆与现实交织，父女矛盾根源逐渐揭开",
+      "act3": "终点站，女儿意外出现，父亲递出那封从未寄出的信"
+    },
+    "visual_style": "暖黄色调，手持摄影，窗外景色流动象征时间流逝",
+    "characters": [
+      {
+        "name": "父亲",
+        "age": "58",
+        "arc": "从固执到释怀"
+      }
+    ]
+  }
+}
+```
+
+### planning 字段结构
+
+<ResponseField name="title" type="string">
+  短片标题
+</ResponseField>
+
+<ResponseField name="logline" type="string">
+  一句话故事梗概（logline）
+</ResponseField>
+
+<ResponseField name="theme" type="string">
+  核心主题
+</ResponseField>
+
+<ResponseField name="three_act" type="object">
+  三幕结构
+
+  <Expandable title="三幕字段">
+    <ResponseField name="act1" type="string">第一幕：建立世界与人物</ResponseField>
+    <ResponseField name="act2" type="string">第二幕：冲突激化</ResponseField>
+    <ResponseField name="act3" type="string">第三幕：高潮与结局</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="visual_style" type="string">
+  视觉风格描述（色调、摄影方式、象征手法）
+</ResponseField>
+
+<ResponseField name="characters" type="object[]">
+  主要人物列表
+
+  <Expandable title="角色字段">
+    <ResponseField name="name" type="string">角色名称</ResponseField>
+    <ResponseField name="age" type="string">年龄</ResponseField>
+    <ResponseField name="arc" type="string">人物弧光（从…到…）</ResponseField>
+  </Expandable>
+</ResponseField>

@@ -1,0 +1,131 @@
+---
+title: 角色 / 场景设计
+description: POST /api/agent/character
+---
+
+基于故事策划，为每个角色和关键场景生成详细的视觉设计描述，以及适合 AI 图片模型使用的提示词（中英文双语）。
+
+---
+
+## 请求
+
+**`POST /api/agent/character`**
+
+### 请求体
+
+<ParamField body="premise" type="string" required>
+  故事前提，一句话。通常来自 `/api/agent/planning` `done` 事件中的 `planning.premise` 字段。
+
+  示例：`"落魄千金穿越古代，邂逅冷峻王爷，在阴谋与爱情中浴火重生"`
+</ParamField>
+
+<ParamField body="outline" type="string" required>
+  故事大纲。通常来自 `planning.outline` 字段。
+</ParamField>
+
+<ParamField body="characters_overview" type="object[]">
+  策划阶段的初步人物设定列表，来自 `planning.characters`。传入可让设计结果与策划保持一致。
+</ParamField>
+
+<ParamField body="feedback" type="string">
+  补充要求或修改意见。
+</ParamField>
+
+### 示例请求
+
+<CodeGroup>
+
+```bash cURL
+curl -X POST http://localhost:8000/api/agent/character \
+  -H "Content-Type: application/json" \
+  -N \
+  -d '{
+    "premise": "落魄千金穿越古代，邂逅冷峻王爷，在阴谋与爱情中浴火重生",
+    "outline": "女主穿越后身份成谜被王爷收留，从对立到相爱，联手破敌...",
+    "characters_overview": [
+      {
+        "name": "林若曦",
+        "role": "女主",
+        "age": "22",
+        "appearance": "清丽脱俗，眸若星辰",
+        "personality": "外柔内刚，聪慧机敏"
+      }
+    ]
+  }'
+```
+
+```python Python
+import httpx
+
+with httpx.stream("POST", "http://localhost:8000/api/agent/character", json={
+    "premise": "落魄千金穿越古代，邂逅冷峻王爷，在阴谋与爱情中浴火重生",
+    "outline": "女主穿越后身份成谜被王爷收留，从对立到相爱，联手破敌...",
+}) as r:
+    for line in r.iter_lines():
+        if line.startswith("data: "):
+            print(line[6:])
+```
+
+</CodeGroup>
+
+---
+
+## 响应
+
+**`200 OK`** — SSE 流式响应（`text/event-stream`）
+
+### chunk 事件
+
+```
+data: {"chunk": "{\"characters\": [{\"name\": \"林若曦\"..."}
+
+data: {"chunk": ", \"visual_description\": \"..."}
+```
+
+### done 事件
+
+```json
+data: {
+  "done": true,
+  "characters": [
+    {
+      "name": "林若曦",
+      "visual_description": "22岁，清丽脱俗，黑发如瀑，着月白色广袖长裙，眸若星辰",
+      "prompt_zh": "古装女子，清秀面容，黑色长发，月白广袖汉服，站在竹林中，柔和光线，写实风格",
+      "prompt_en": "ancient chinese woman, delicate features, black long hair, white hanfu, bamboo forest, soft lighting, realistic style"
+    }
+  ],
+  "scenes": [
+    {
+      "name": "王府书房",
+      "description": "雕梁画栋，檀木书架，烛光摇曳，窗外月色如银",
+      "prompt_zh": "古代书房，檀木书架满是典籍，红烛燃烧，窗外月光洒入，古典中式风格",
+      "prompt_en": "ancient chinese study room, rosewood bookshelves, red candles, moonlight through window, classical style"
+    }
+  ]
+}
+```
+
+### 响应字段结构
+
+<ResponseField name="characters" type="object[]">
+  角色视觉设计列表
+
+  <Expandable title="角色字段">
+    <ResponseField name="name" type="string">角色名称</ResponseField>
+    <ResponseField name="visual_description" type="string">视觉外观详细描述</ResponseField>
+    <ResponseField name="prompt_zh" type="string">中文 AI 图片生成提示词</ResponseField>
+    <ResponseField name="prompt_en" type="string">英文 AI 图片生成提示词</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="scenes" type="object[]">
+  场景视觉设计列表
+
+  <Expandable title="场景字段">
+    <ResponseField name="name" type="string">场景名称</ResponseField>
+    <ResponseField name="description" type="string">场景视觉描述</ResponseField>
+    <ResponseField name="prompt_zh" type="string">中文 AI 图片生成提示词</ResponseField>
+    <ResponseField name="prompt_en" type="string">英文 AI 图片生成提示词</ResponseField>
+  </Expandable>
+</ResponseField>
