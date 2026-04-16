@@ -15,26 +15,33 @@
     "name": "GitHub",
     "url": "https://github.com/juemingai/shiguang"
   },
-  "navigation": [
-    {
-      "group": "开始",
-      "pages": ["introduction"]
-    },
-    {
-      "group": "Agent 接口",
-      "pages": [
-        "api-reference/overview",
-        "api-reference/planning",
-        "api-reference/film-planning",
-        "api-reference/character",
-        "api-reference/storyboard",
-        "api-reference/film-screenplay",
-        "api-reference/characters",
-        "api-reference/scenes",
-        "api-reference/props"
-      ]
-    }
-  ],
+  "navigation": {
+    "tabs": [
+      {
+        "tab": "文档",
+        "groups": [
+          {
+            "group": "开始",
+            "pages": ["introduction"]
+          },
+          {
+            "group": "Agent 接口",
+            "pages": [
+              "api-reference/overview",
+              "api-reference/planning",
+              "api-reference/film-planning",
+              "api-reference/character",
+              "api-reference/storyboard",
+              "api-reference/film-screenplay",
+              "api-reference/characters",
+              "api-reference/scenes",
+              "api-reference/props"
+            ]
+          }
+        ]
+      }
+    ]
+  },
   "footerSocials": {
     "github": "https://github.com/juemingai/shiguang"
   }
