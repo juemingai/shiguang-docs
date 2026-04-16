@@ -42,6 +42,9 @@
       }
     ]
   },
+  "contextual": {
+    "options": ["copy", "view", "chatgpt", "claude"]
+  },
   "footerSocials": {
     "github": "https://github.com/juemingai/shiguang"
   }
