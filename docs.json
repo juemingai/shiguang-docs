@@ -11,6 +11,11 @@
     "primary": "#6366f1"
   },
   "openapi": "/openapi.json",
+  "api": {
+    "playground": {
+      "mode": "hide"
+    }
+  },
   "topbarLinks": [],
   "topbarCtaButton": {
     "name": "GitHub",
