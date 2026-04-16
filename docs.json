@@ -1,0 +1,46 @@
+{
+  "$schema": "https://mintlify.com/schema.json",
+  "name": "拾光",
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
+  },
+  "favicon": "/favicon.svg",
+  "colors": {
+    "primary": "#6366f1",
+    "light": "#818cf8",
+    "dark": "#4f46e5",
+    "background": {
+      "light": "#ffffff",
+      "dark": "#0f0f13"
+    }
+  },
+  "topbarLinks": [],
+  "topbarCtaButton": {
+    "name": "GitHub",
+    "url": "https://github.com/juemingai/shiguang"
+  },
+  "navigation": [
+    {
+      "group": "开始",
+      "pages": ["introduction"]
+    },
+    {
+      "group": "Agent 接口",
+      "pages": [
+        "api-reference/overview",
+        "api-reference/planning",
+        "api-reference/film-planning",
+        "api-reference/character",
+        "api-reference/storyboard",
+        "api-reference/film-screenplay",
+        "api-reference/characters",
+        "api-reference/scenes",
+        "api-reference/props"
+      ]
+    }
+  ],
+  "footerSocials": {
+    "github": "https://github.com/juemingai/shiguang"
+  }
+}
