@@ -10,6 +10,7 @@
   "colors": {
     "primary": "#6366f1"
   },
+  "openapi": "/openapi.json",
   "topbarLinks": [],
   "topbarCtaButton": {
     "name": "GitHub",
